@@ -44,8 +44,10 @@ class YandexMetrikaHelper {
         window.addEventListener('scroll', (evt) => {
             if (!targetCompleted && window.scrollY >= numberPx) {
                 targetCompleted = true;
-                console.log('target scrollpx: ', numberPx);
-                console.log('targetId : ', targetId);
+                if (this.testMode) {
+                    console.log('target scrollpx: ', numberPx);
+                    console.log('targetId : ', targetId);
+                }
                 ym(this.idCounter, 'reachGoal', targetId);
             }
         });
@@ -59,8 +61,10 @@ class YandexMetrikaHelper {
         window.addEventListener('scroll', (evt) => {
             if (!targetCompleted && ((document.documentElement.clientHeight * 0.7) > targetElem.getBoundingClientRect().top)) {
                 targetCompleted = true;
-                console.log('target scrollToElem: ', targetId);
-                console.log('targetId : ', targetId);
+                if (this.testMode) {
+                    console.log('target scrollToElem: ', targetSelector);
+                    console.log('targetId : ', targetId);
+                }
                 ym(this.idCounter, 'reachGoal', targetId);
             }
         });
@@ -71,7 +75,10 @@ class YandexMetrikaHelper {
         const observer = new IntersectionObserver((entries, observer) => {
             entries.forEach((entry) => {
                 if (entry.isIntersecting) {
-                    console.log('observer', entry.target);
+                    if (this.testMode) {
+                        console.log('target scrollToElem: ', targetSelector);
+                        console.log('targetId : ', targetId);
+                    }
                     ym(this.idCounter, 'reachGoal', targetId);
                     observer.unobserve(entry.target);
                 }
