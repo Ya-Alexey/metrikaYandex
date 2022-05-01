@@ -65,6 +65,21 @@ class YandexMetrikaHelper {
             }
         });
     }
+
+    setActionScrollObserver(targetSelector, targetId) {
+        const targetElem = document.querySelector(targetSelector);
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    console.log('observer', entry.target);
+                    ym(this.idCounter, 'reachGoal', targetId);
+                    observer.unobserve(entry.target);
+                }
+            })
+        }, { threshold: 0.1});
+
+        observer.observe(targetElem);
+    }
 }
 
 
@@ -72,3 +87,4 @@ const yaHelper = new YandexMetrikaHelper(88345790, true);
 yaHelper.setActionClick('.header__btn', 'click-btn');
 yaHelper.setActionScrollPx(1000, 'scroll1000');
 yaHelper.setActionScrollToTarget('.text-2', 'scroll1000');
+yaHelper.setActionScrollObserver('.text-2', 'scroll1000');
