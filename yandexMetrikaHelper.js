@@ -13,7 +13,7 @@
     4.1 Конкретный урл
     4.2 По вхождению урла - по куску
 
-    5. При уходе с определенную страницу
+    5. При уходе с определенной страницы
     5.1 Конкретный урл
     5.2 По вхождению урла
 
@@ -26,6 +26,7 @@ class YandexMetrikaHelper {
         this.testMode = testMode
     }
 
+    //Вызов по клику на элемент по его селектору. Элемент может быть динамический
     setActionClick(targetSelector, targetId) {
         document.addEventListener('click', (evt) => {
             if (evt.target.closest(targetSelector)) {
@@ -38,6 +39,7 @@ class YandexMetrikaHelper {
         });
     }
 
+    //При доскралливании страницы на определенное количество пикселей
     setActionScrollPx(numberPx, targetId) {
         let targetCompleted = false;
         
@@ -53,45 +55,125 @@ class YandexMetrikaHelper {
         });
     }
 
+    //При доскралливании страницы до нужного элемента
     setActionScrollToTarget(targetSelector, targetId) {
         let targetCompleted = false;
-        
+    
         const targetElem = document.querySelector(targetSelector);
 
-        window.addEventListener('scroll', (evt) => {
-            if (!targetCompleted && ((document.documentElement.clientHeight * 0.7) > targetElem.getBoundingClientRect().top)) {
-                targetCompleted = true;
-                if (this.testMode) {
-                    console.log('target scrollToElem: ', targetSelector);
-                    console.log('targetId : ', targetId);
-                }
-                ym(this.idCounter, 'reachGoal', targetId);
-            }
-        });
-    }
-
-    setActionScrollObserver(targetSelector, targetId) {
-        const targetElem = document.querySelector(targetSelector);
-        const observer = new IntersectionObserver((entries, observer) => {
-            entries.forEach((entry) => {
-                if (entry.isIntersecting) {
+        if (targetElem) {
+            window.addEventListener('scroll', (evt) => {
+                if (!targetCompleted && ((document.documentElement.clientHeight * 0.7) > targetElem.getBoundingClientRect().top)) {
+                    targetCompleted = true;
                     if (this.testMode) {
                         console.log('target scrollToElem: ', targetSelector);
                         console.log('targetId : ', targetId);
                     }
                     ym(this.idCounter, 'reachGoal', targetId);
-                    observer.unobserve(entry.target);
                 }
-            })
-        }, { threshold: 0.1});
+            });
+        }
+    }
 
-        observer.observe(targetElem);
+    //При доскралливании страницы до нужного элемента
+    //вариант с использованием IntersectionObserver
+    setActionScrollObserver(targetSelector, targetId) {
+        const targetElem = document.querySelector(targetSelector);
+        if (targetElem) {
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        if (this.testMode) {
+                            console.log('target scrollToElem: ', targetSelector);
+                            console.log('targetId : ', targetId);
+                        }
+                        ym(this.idCounter, 'reachGoal', targetId);
+                        observer.unobserve(entry.target);
+                    }
+                })
+            }, { threshold: 0.1});
+    
+            observer.observe(targetElem);
+        }
+    }
+
+    // При входе на определенную страницу
+    // Конкретный урл
+    setActionMatchUrl(fullUrlName, targetId) {
+        const url = document.location.href;
+
+        if (fullUrlName == url) {
+            if (this.testMode) {
+                console.log('target matchUrl: ', fullUrlName);
+                console.log('targetId : ', targetId);
+            }
+            ym(this.idCounter, 'reachGoal', targetId);
+        }
+    }
+
+    // При входе на определенную страницу
+    // По вхождению урла - по куску
+    setActionMatchUrlPart(urlPart, targetId) {
+        const url = document.location.href; 
+    
+        if (url.indexOf(urlPart) != -1) {
+            if (this.testMode) {
+                console.log('target matchUrlPart: ', urlPart);
+                console.log('targetId : ', targetId);
+            }
+            ym(this.idCounter, 'reachGoal', targetId);
+        }
+    }
+
+    // При уходе с определенной страницы
+    // Конкретный урл
+    setActionLeaveUrl(fullUrlName, targetId) {
+        const url = document.location.href;
+
+        if (fullUrlName == url) {
+            window.addEventListener('unload', (evt) => {
+                ym(this.idCounter, 'reachGoal', targetId);
+            });
+        }
+    }
+
+    // При уходе с определенной страницы
+    // По вхождению урла
+    setActionLeaveUrlPart(urlPart, targetId) {
+        const url = document.location.href;
+
+        if (url.indexOf(urlPart) != -1) {
+            window.addEventListener('unload', (evt) => {
+                ym(this.idCounter, 'reachGoal', targetId);
+            });
+        }
+    }
+
+    // Фокус в инпут/текстарею
+    setActionFocusInput(targetSelector, targetId) {
+        const targetElem = document.querySelector(targetSelector);
+
+        if (targetElem) {
+            targetElem.addEventListener('focus', (evt) => {
+                if (this.testMode) {
+                    console.log('target focusInput: ', targetSelector);
+                    console.log('targetId : ', targetId);
+                }
+                ym(this.idCounter, 'reachGoal', targetId);
+            });
+        }
     }
 }
 
 
 const yaHelper = new YandexMetrikaHelper(88345790, true);
-yaHelper.setActionClick('.header__btn', 'click-btn');
-yaHelper.setActionScrollPx(1000, 'scroll1000');
-yaHelper.setActionScrollToTarget('.text-2', 'scroll1000');
-yaHelper.setActionScrollObserver('.text-2', 'scroll1000');
+yaHelper.setActionClick('.feedback-form__btn', 'click-btn');
+yaHelper.setActionScrollPx(1000, 'scroll1000'); 
+yaHelper.setActionScrollToTarget('.service', 'scrollToBlock'); 
+yaHelper.setActionScrollObserver('.last-work', 'scrollToBlock'); 
+yaHelper.setActionMatchUrl('http://z920860z.beget.tech/project7/about.html', 'matchUrl'); 
+yaHelper.setActionMatchUrlPart('about', 'matchUrlPart'); 
+yaHelper.setActionLeaveUrl('http://z920860z.beget.tech/project7/index.html', 'leaveUrl'); 
+yaHelper.setActionLeaveUrlPart('about', 'leaveUrlPart'); 
+yaHelper.setActionFocusInput('#header-tel', 'focusInput'); 
+yaHelper.setActionFocusInput('#header-message', 'focusInput'); 
